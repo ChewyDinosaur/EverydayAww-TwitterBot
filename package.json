@@ -1,0 +1,24 @@
+{
+  "name": "everydayaww_bot",
+  "version": "1.0.0",
+  "description": "twitter bot posting pictures from r/aww",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "aww",
+    "everyday",
+    "photos",
+    "pics"
+  ],
+  "author": "Aaron Parsons",
+  "license": "ISC",
+  "dependencies": {
+    "get-json": "^1.0.0",
+    "image-downloader": "^3.3.0",
+    "twit": "^2.2.9"
+  }
+}
