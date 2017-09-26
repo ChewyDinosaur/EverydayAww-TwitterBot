@@ -8,8 +8,23 @@ const config = require('./config');
 
 const T = new Twit(config);
 
-// Tweet once every 12 hours
-let tweetInterval = setInterval(getContent, 1000*60*60*12);
+
+// ----------- Like tweets with the hastag #aww -----------
+let stream = T.stream('statuses/filter', { track: '#aww', language: 'en' })
+
+stream.on('tweet', function (data) {
+  console.log('#aww tweet detected');
+  //console.log(data);
+  let tweetID = data.id_str;
+  T.post('favorites/create', { id: tweetID }, function() {
+    console.log('Liked #aww tweet');
+  });
+});
+
+
+
+// Tweet once every 6 hours
+let tweetInterval = setInterval(getContent, 1000*60*60*6);
 
 
 // ------------ Make JSON call & download photo --------------
@@ -69,9 +84,9 @@ function tweetImage(imgPath, text) {
 
   // first we must post the media to Twitter
   T.post('media/upload', { media_data: b64content }, function (err, data, response) {
-    var mediaIdStr = data.media_id_string
+    let mediaIdStr = data.media_id_string
     // now we can reference the media and post a tweet (media will attach to the tweet)
-    var params = { status: text, media_ids: [mediaIdStr] }
+    let params = { status: text, media_ids: [mediaIdStr] }
 
     T.post('statuses/update', params, function (err, data, response) {
       console.log('Tweeted Image');
