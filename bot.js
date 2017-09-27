@@ -13,14 +13,14 @@ const T = new Twit(config);
 let stream = T.stream('statuses/filter', { track: '#aww', language: 'en' })
 
 stream.on('tweet', function (data) {
-  console.log('#aww tweet detected');
   //console.log(data);
   let tweetID = data.id_str;
-  T.post('favorites/create', { id: tweetID }, function() {
-    console.log('Liked #aww tweet');
-  });
+  if (data.user.screen_name !== 'EverydayAww') {
+    T.post('favorites/create', { id: tweetID }, function() {
+      // Tweet liked
+    });
+  }
 });
-
 
 
 // Tweet once every 6 hours
@@ -29,6 +29,7 @@ let tweetInterval = setInterval(getContent, 1000*60*60*6);
 
 // ------------ Make JSON call & download photo --------------
 function getContent() {
+  console.log('Running getContent function');
   const url = 'https://www.reddit.com/r/aww/hot.json?limit=5';
 
   getJSON(url, function(error, response){
@@ -40,11 +41,13 @@ function getContent() {
     let status;
     let hashtags = '#EverydayAww #aww #animals';
 
-    // Ignore stickied posts
     for (let i = 0; i < data.length; i++) {
       if (data[i].data.stickied) {
         // Post is stickied, ignore it
         console.log(i + ' is stickied post, skipping');
+      } else if (data[i].data.preview.images[0].variants.gif !== undefined) {
+        // Check if content is a gif
+        console.log('Content is a gif, skipping');        
       } else {
         // Post not stickied, post if title length under 95 chars
         if (data[i].data.title.length <= 95) {
@@ -72,6 +75,7 @@ function getContent() {
         // Call tweet function
         tweetImage(filename, status);
       }).catch((err) => {
+
         throw err
       });
   });
