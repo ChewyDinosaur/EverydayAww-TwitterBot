@@ -25,12 +25,13 @@ stream.on('tweet', function (data) {
 
 // Tweet once every 6 hours
 let tweetInterval = setInterval(getContent, 1000*60*60*6);
+let prevURL;
 
 
 // ------------ Make JSON call & download photo --------------
 function getContent() {
   console.log('Running getContent function');
-  const url = 'https://www.reddit.com/r/aww/hot.json?limit=5';
+  const url = 'https://www.reddit.com/r/aww/hot.json?limit=20';
 
   getJSON(url, function(error, response){
     // Store JSON data
@@ -47,19 +48,21 @@ function getContent() {
         console.log(i + ' is stickied post, skipping');
       } else if (data[i].data.preview.images[0].variants.gif !== undefined) {
         // Check if content is a gif
-        console.log('Content is a gif, skipping');        
+        console.log(i + ' is a gif, skipping');        
+      } else if (data[i].data.preview.images[0].source.url === prevURL) {
+        // Image is the same as previously tweeted image
+        console.log(i + ' is same as previous tweet');
+      } else if (data[i].data.title.length > 95) {
+        // Title is more thatn 95 characters
+        console.log(i + ' title length too long, skipping post');
       } else {
-        // Post not stickied, post if title length under 95 chars
-        if (data[i].data.title.length <= 95) {
-          console.log(i + ' is valid post, downloading photo');
-          imageURL = data[i].data.preview.images[0].source.url;
-          title = data[i].data.title;
-          credit = data[i].data.author;
-          status = '"' + title + '"' + '\n\n' + 'Credit: u/' + credit + '\n' + hashtags;
-          break;
-        } else {
-          console.log('Title length too long, skipping post');
-        }
+        console.log(i + ' is valid post, downloading photo');
+        imageURL = data[i].data.preview.images[0].source.url;
+        prevURL = imageURL;
+        title = data[i].data.title;
+        credit = data[i].data.author;
+        status = '"' + title + '"' + '\n\n' + 'Credit: u/' + credit + '\n' + hashtags;
+        break;
       }
     }
 
